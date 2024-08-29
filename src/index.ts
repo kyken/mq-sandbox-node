@@ -54,7 +54,6 @@ const main = async () => {
         await receive(channel, QUEUE_NAME);
 
         // プログラムを終了させないためのループ
-        // 注意: 実際の使用では、より適切な終了条件を設定することをお勧めします
         while (true) {
             await sleep(1000);
         }
