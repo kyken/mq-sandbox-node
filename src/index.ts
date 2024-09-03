@@ -16,11 +16,18 @@ async function send(channel: amqp.Channel, queue: string, message: string, prior
     }
 }
 
+let counter = 0
+
 async function receive(channel: amqp.Channel, queue: string): Promise<void> {
     try {
         await channel.consume(queue, (message) => {
+            if(counter > 3) {
+                // stackする
+                return
+            }
             if (message) {
                 console.log(`Received: ${message.content.toString()}`);
+                counter = counter + 1
                 channel.ack(message);
             }
         });
@@ -45,10 +52,10 @@ const main = async () => {
 
         // メッセージの送信
         for (const i of sequence) {
-            await send(channel, QUEUE_NAME, `hello${i}`);
+            await send(channel, QUEUE_NAME, `hello${i}, priority 0`);
             await sleep(10); // 短い遅延を追加
         }
-        await send(channel, QUEUE_NAME, `hello saikyo priority`, 10);
+        await send(channel, QUEUE_NAME, `hello, priority 10`, 10);
 
         // メッセージの受信
         await receive(channel, QUEUE_NAME);
